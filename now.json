@@ -1,0 +1,34 @@
+{
+  "alias": "stripe-paymentintents-example",
+  "build": {
+    "env": {
+      "STRIPE_PUBLISHABLE_KEY": "@stripe-paymentintents-example-stripe-publishable-key"
+    }
+  },
+  "builds": [
+    {
+      "src": "app/package.json",
+      "use": "@now/next"
+    },
+    {
+      "src": "api/handlers/*.js",
+      "use": "@now/node"
+    }
+  ],
+  "env": {
+    "STRIPE_SECRET_KEY": "@stripe-paymentintents-example-stripe-secret-key"
+  },
+  "name": "stripe-paymentintents-example",
+  "routes": [
+    {
+      "src": "/api/intent",
+      "dest": "/api/handlers/create-intent.js",
+      "methods": ["POST"]
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/app/$1"
+    }
+  ],
+  "version": 2
+}
