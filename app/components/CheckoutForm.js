@@ -37,7 +37,7 @@ function CheckoutForm({ stripe }) {
 
       cardElement.clear()
     } catch (err) {
-      setCheckoutError(err)
+      setCheckoutError('There was a problem processing your payment')
     }
   }
 
