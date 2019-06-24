@@ -20,6 +20,7 @@ const StyledForm = styled.form`
 
 function CheckoutForm({ stripe }) {
   const [checkoutError, setCheckoutError] = useState(null)
+  const [cardElement, setCardElement] = useState(null)
 
   async function onSubmit() {
     try {
@@ -33,6 +34,8 @@ function CheckoutForm({ stripe }) {
       const { client_secret } = await stripePaymentIntent.json()
 
       await stripe.handleCardPayment(client_secret)
+
+      cardElement.clear()
     } catch (err) {
       setCheckoutError(err)
     }
@@ -46,7 +49,7 @@ function CheckoutForm({ stripe }) {
           return (
             <StyledForm onSubmit={handleSubmit}>
               {checkoutError && { checkoutError }}
-              <StyledCardElement />
+              <StyledCardElement onReady={el => setCardElement(el)} />
               <Button type="submit" disabled={submitting}>
                 {submitting ? 'Submitting' : 'Submit'}
               </Button>
