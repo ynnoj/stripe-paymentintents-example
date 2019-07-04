@@ -17,6 +17,9 @@ const StyledCardElement = styled(CardElement)`
 const StyledForm = styled.form`
   ${tw`flex items-center`}
 `
+const Error = styled.div`
+  ${tw`border border-red-200 border-solid bg-red-100 mt-4 p-2 rounded text-red-400 text-sm`}
+`
 
 function CheckoutForm({ stripe }) {
   const [checkoutError, setCheckoutError] = useState(null)
@@ -47,13 +50,15 @@ function CheckoutForm({ stripe }) {
         onSubmit={onSubmit}
         render={({ handleSubmit, submitting }) => {
           return (
-            <StyledForm onSubmit={handleSubmit}>
-              {checkoutError && { checkoutError }}
-              <StyledCardElement onReady={el => setCardElement(el)} />
-              <Button type="submit" disabled={submitting}>
-                {submitting ? 'Submitting' : 'Submit'}
-              </Button>
-            </StyledForm>
+            <React.Fragment>
+              <StyledForm onSubmit={handleSubmit}>
+                <StyledCardElement onReady={el => setCardElement(el)} />
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? 'Submitting' : 'Submit'}
+                </Button>
+              </StyledForm>
+              {checkoutError && <Error>{checkoutError}</Error>}
+            </React.Fragment>
           )
         }}
       />
