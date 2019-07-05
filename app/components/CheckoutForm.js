@@ -12,7 +12,7 @@ const Section = styled.section`
   ${tw`bg-white mx-auto px-4 py-4 rounded shadow w-2/3 md:w-1/3`}
 `
 const StyledCardElement = styled(CardElement)`
-  ${tw`flex-auto`}
+  ${tw`border border-gray-300 border-solid flex-auto p-2 rounded`}
 `
 const StyledForm = styled.form`
   ${tw`flex items-center`}
@@ -23,10 +23,14 @@ const Error = styled.div`
 
 function CheckoutForm({ stripe }) {
   const [checkoutError, setCheckoutError] = useState(null)
+  const [checkoutProcessing, setCheckoutProcessing] = useState(null)
   const [cardElement, setCardElement] = useState(null)
 
   async function onSubmit() {
     try {
+      setCheckoutProcessing(true)
+      setCheckoutError(false)
+
       const stripePaymentIntent = await fetch('/api/intent', {
         method: 'POST',
         body: JSON.stringify({
@@ -39,7 +43,9 @@ function CheckoutForm({ stripe }) {
       await stripe.handleCardPayment(client_secret)
 
       cardElement.clear()
+      setCheckoutProcessing(false)
     } catch (err) {
+      setCheckoutProcessing(false)
       setCheckoutError('There was a problem processing your payment')
     }
   }
@@ -51,12 +57,15 @@ function CheckoutForm({ stripe }) {
         render={({ handleSubmit, submitting }) => {
           return (
             <React.Fragment>
-              <StyledForm onSubmit={handleSubmit}>
-                <StyledCardElement onReady={el => setCardElement(el)} />
-                <Button type="submit" disabled={submitting}>
-                  {submitting ? 'Submitting' : 'Submit'}
-                </Button>
-              </StyledForm>
+              {checkoutProcessing ? (
+                'Loading'
+              ) : (
+                <StyledForm onSubmit={handleSubmit}>
+                  <StyledCardElement onReady={el => setCardElement(el)} />
+                  <Button type="submit">Submit</Button>
+                </StyledForm>
+              )}
+
               {checkoutError && <Error>{checkoutError}</Error>}
             </React.Fragment>
           )
