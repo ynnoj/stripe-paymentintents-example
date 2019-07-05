@@ -12,7 +12,7 @@ const Section = styled.section`
   ${tw`bg-white mx-auto px-4 py-4 rounded shadow w-2/3 md:w-1/3`}
 `
 const StyledCardElement = styled(CardElement)`
-  ${tw`flex-auto`}
+  ${tw`border border-gray-300 border-solid flex-auto p-2 rounded`}
 `
 const StyledForm = styled.form`
   ${tw`flex items-center`}
