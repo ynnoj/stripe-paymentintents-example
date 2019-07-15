@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { Form } from 'react-final-form'
+import { Field, Form } from 'react-final-form'
 import { CardElement, injectStripe } from 'react-stripe-elements'
 import fetch from 'isomorphic-unfetch'
 import styled from 'styled-components'
 import tw from 'tailwind.macro'
 
 const Button = styled.button`
-  ${tw`bg-blue-500 border-0 cursor-pointer ml-4 px-4 py-2 rounded text-base text-white`}
+  ${tw`bg-blue-500 border-0 cursor-pointer px-4 py-2 rounded text-base text-white`}
 
   ${({ disabled }) => (disabled ? tw`bg-blue-200` : tw`bg-blue-500`)}
 `
@@ -22,7 +22,10 @@ const StyledCardElement = styled(CardElement)`
   ${({ disabled }) => (disabled ? tw`opacity-50` : tw`opacity-100`)}
 `
 const StyledForm = styled.form`
-  ${tw`flex items-center`}
+  ${tw`items-center`}
+`
+const StyledField = styled(Field)`
+  ${tw`appearance-none bg-white block border border-gray-300 border-solid p-2 rounded w-full`}
 `
 const Error = styled(Alert)`
   ${tw`border-red-200 bg-red-100 text-red-400`}
@@ -36,7 +39,7 @@ function CheckoutForm({ stripe }) {
   const [checkoutProcessing, setCheckoutProcessing] = useState(null)
   const [cardElement, setCardElement] = useState(null)
 
-  async function onSubmit() {
+  async function onSubmit({ amount, currency }) {
     try {
       setCheckoutProcessing(true)
       setCheckoutError(false)
@@ -44,8 +47,8 @@ function CheckoutForm({ stripe }) {
       const stripePaymentIntent = await fetch('/api/intent', {
         method: 'POST',
         body: JSON.stringify({
-          amount: 9999,
-          currency: 'usd'
+          amount,
+          currency
         })
       })
       const { client_secret } = await stripePaymentIntent.json()
@@ -60,14 +63,36 @@ function CheckoutForm({ stripe }) {
     }
   }
 
+  function formatCurrency(amount, currency) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency
+    }).format(amount / 100)
+  }
+
   return (
     <Section>
       <Form
+        initialValues={{ amount: 1000, currency: 'usd' }}
         onSubmit={onSubmit}
-        render={({ handleSubmit, submitting }) => {
+      >
+        {({ handleSubmit, submitting, values }) => {
+          const { amount, currency } = values
+
           return (
             <React.Fragment>
+              <p>{formatCurrency(amount, currency)}</p>
               <StyledForm onSubmit={handleSubmit}>
+                <div>
+                  <StyledField name="amount" component="input" type="number" />
+                </div>
+                <div>
+                  <StyledField name="currency" component="select">
+                    <option value="usd">USD</option>
+                    <option value="gbp">GBP</option>
+                    <option value="eur">EUR</option>
+                  </StyledField>
+                </div>
                 <StyledCardElement
                   onReady={el => setCardElement(el)}
                   disabled={submitting}
@@ -84,7 +109,7 @@ function CheckoutForm({ stripe }) {
             </React.Fragment>
           )
         }}
-      />
+      </Form>
     </Section>
   )
 }
